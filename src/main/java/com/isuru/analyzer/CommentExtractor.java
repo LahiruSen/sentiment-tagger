@@ -2,7 +2,6 @@ package com.isuru.analyzer;
 
 import com.isuru.bean.Comment;
 import com.isuru.bean.NewsArticle;
-import com.isuru.bean.Sentiment;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -23,7 +22,7 @@ public class CommentExtractor {
     private StringBuilder aggregateComments = new StringBuilder().append("docid;comment;label\n");
 
     public static void main(String[] args) {
-        File folder = new File("./corpus/tagged");
+        File folder = new File("./corpus/raw_data");
         File[] listOfFiles = folder.listFiles();
         CommentExtractor extractor = new CommentExtractor();
         long totalCommentsAdded = 0;
@@ -50,8 +49,8 @@ public class CommentExtractor {
             String fileName = file.getName().split(".txt")[0];
 
             for (Comment comment : newsArticle.getComments()) {
-                if (comment.getSentiment().equals(Sentiment.POSITIVE) ||
-                        comment.getSentiment().equals(Sentiment.NEGATIVE)) {
+//                if (comment.getSentiment().equals(Sentiment.POSITIVE) ||
+//                        comment.getSentiment().equals(Sentiment.NEGATIVE)) {
                     usefulComments++;
                     aggregateComments
                             .append(fileName)
@@ -74,15 +73,18 @@ public class CommentExtractor {
                                     .replace("/", " ")
                                     .replace("\"", " ")
                                     .replace("'", " ")
+                                    .replace("?", " ")
                                     .replaceAll("(\\h+)"," ")
                                     .replaceAll("\\s+", " ")
+                                    .replaceAll("[0-9]", "")
+                                    .replaceAll("[a-zA-Z]", " ")
                                     .trim())
                             .append(SEPARATOR)
-                            .append(comment.getSentiment().toString())
+//                            .append(comment.getSentiment().toString())
                             .append(NEW_LINE);
-                } else {
-                    uselessComments++;
-                }
+//                } else {
+//                    uselessComments++;
+//                }
             }
         } catch (JAXBException e) {
             e.printStackTrace();
@@ -93,7 +95,7 @@ public class CommentExtractor {
     }
 
     private void writeToFiles() {
-        String commentFile = "./corpus/analyzed/comments_tagged_remove_all_punc_keep_question.csv";
+        String commentFile = "./corpus/analyzed/comments_all_remove_all_punc_numbers_englishletters.csv";
 
         try (FileWriter fileWriter = new FileWriter(commentFile)) {
             fileWriter.write(aggregateComments.toString());
