@@ -1,7 +1,12 @@
 package com.isuru.crawler;
 
+
+
 import com.isuru.bean.Comment;
 import com.isuru.bean.NewsArticle;
+import org.apache.poi.hslf.record.CString;
+import org.json.simple.JSONArray;
+import org.json.simple.JSONObject;
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
@@ -18,48 +23,46 @@ import java.util.logging.Logger;
 public class CommentExtractor {
     private static final Logger logger = Logger.getLogger("CommentExtractor");
 
-    public static NewsArticle extractNews(String html, String url) {
-        NewsArticle newsArticle = new NewsArticle();
+    public static NewsArticle extractNews(String title, String html, String url) {
+//        NewsArticle newsArticle = new NewsArticle();
+//        List<Comment> commentList = new ArrayList<>();
+//        StringBuilder body = new StringBuilder();
+//        String articleAuthor;
+//        String articleDate;
+
+
+        Document doc = Jsoup.parse(html.replaceAll("\\&quot;",""));
+
+
+        NewsArticle article = new NewsArticle();
         List<Comment> commentList = new ArrayList<>();
-        StringBuilder body = new StringBuilder();
-        String title;
-        String articleAuthor;
-        String articleDate;
 
-        Document doc = Jsoup.parse(html);
 
-        title = doc.getElementsByClass("post-title").first().text();
-        articleDate = doc.getElementsByClass("post-date").first().text();
-        articleAuthor = doc.getElementsByClass("post-writer").first().text();
 
-//		Elements bodyContent = doc.getElementsByClass("post-content").first().select("p");
-        Elements bodyContent = doc.getElementsByClass("post-content").first().children();
-        for (Element e : bodyContent) {
-            body.append(e.text()).append("\n");
-        }
-
-        Elements comments = doc.getElementsByClass("media");
-        for (Element e : comments) {
-            String author = e.getElementsByClass("text-primary").first().text();
-            String date = e.select("small").first().text();
-            author = author.substring(0, author.indexOf(date)).trim();
-            String commentPhrase = e.getElementsByClass("comment-text").first().text();
+        Elements comments = doc.getElementsByClass("\\idc-c-t-inner\\");
+        for (Element e:comments){
+            String author = "DummyAuthor";
+            String date = "DummyDate";
+            String commentPhrase = e.text();
             Comment comment = new Comment(author, date, commentPhrase);
             commentList.add(comment);
         }
 
-        newsArticle.setTitle(title);
-        newsArticle.setAuthor(articleAuthor);
-        newsArticle.setDate(articleDate);
-        newsArticle.setBody(body.toString().trim());
-        newsArticle.setComments(commentList);
-        newsArticle.setUrl(url);
+        article.setComments(commentList);
+        article.setTitle(title);
+        article.setUrl(url);
+        article.setAuthor("articleAuthor");
+        article.setDate("articleDate");
+        article.setBody("dody");
 
-        return newsArticle;
+        return article;
+
+
+
     }
 
     public static void saveXML(String fileName, NewsArticle article) {
-        File output = new File("./test/out/xml/" + fileName + ".xml");
+        File output = new File("corpus/GossipLanka/raw_data_4/" + fileName + ".xml");
         try {
             JAXBContext jaxbContext = JAXBContext.newInstance(NewsArticle.class);
             Marshaller jaxbMarshaller = jaxbContext.createMarshaller();
@@ -71,8 +74,7 @@ public class CommentExtractor {
     }
 
     public static void saveTxt(String fileName, NewsArticle article) {
-        File output = new File("./test/out/txt/" + fileName + ".txt");
-        File outputComments = new File("./test/out/txt/comments/" + fileName + ".txt");
+        File output = new File("corpus/GossipLanka/raw_data_4/" + fileName + ".txt");
         try {
             output.createNewFile();
             FileWriter writer = new FileWriter(output);
@@ -80,16 +82,33 @@ public class CommentExtractor {
             writer.flush();
             writer.close();
 
-            output.createNewFile();
-            writer = new FileWriter(outputComments);
-            writer.write(article.toTxtComments());
-            writer.flush();
-            writer.close();
         } catch (Exception e) {
             e.printStackTrace();
         }
 
     }
+
+//    public static void saveTxttest(String fileName, String article) {
+//        File output = new File("corpus/GossipLanka/raw_data/" + fileName + ".txt");
+//        File outputComments = new File("./test/out/txt/comments/" + fileName + ".txt");
+//        try {
+//            output.createNewFile();
+//            FileWriter writer = new FileWriter(output);
+//            writer.write(article);
+//            writer.flush();
+//            writer.close();
+////
+////            output.createNewFile();
+////            writer = new FileWriter(outputComments);
+////            writer.write(CString);
+////            writer.flush();
+////            writer.close();
+//        } catch (Exception e) {
+//            e.printStackTrace();
+//        }
+//
+//    }
+
 
     public static void saveJson(String fileName, NewsArticle article) {
         File output = new File("./test/out/json/" + fileName + ".json");
