@@ -11,6 +11,7 @@
 /venvconda2
 /test
 
+/corpus
 /corpus/analayzed/saved_models
 /tagging
 
@@ -25,3 +26,4 @@ src/main/python/models/
 *.~lock*
 /corpus/raw_data/
 /corpus/tagged/
+/corpus/
