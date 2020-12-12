@@ -23,3 +23,5 @@ src/main/python/resources/
 src/main/python/vectors/
 src/main/python/models/
 *.~lock*
+/corpus/raw_data/
+/corpus/tagged/
